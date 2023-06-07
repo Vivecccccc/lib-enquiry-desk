@@ -69,28 +69,23 @@ export default {
 			axios.post("http://127.0.0.1:8000/query", payload, {withCredentials: true})
 			.then(resp => {
 				const respMsg = {
-					text: resp.data,
+					text: resp.data.msg,
 					id: Math.random().toString(36),
 					sender: "bot",
-					time: new Date().toLocaleTimeString()
+					time: new Date().toLocaleTimeString(),
+					src: resp.data.src
 				}
+				this.messages.push(respMsg)
 				this.isWaitingResponse = false
 				this.scrollToEnd("received")
 			})
 			.catch(err => {
-				window.alert(err.data)
 				this.isWaitingResponse = false
+				window.alert(err.response.data.detail)
+				if (err.response.status === 401) {
+					this.$router.push("/login")
+				}
 			})
-			// setTimeout(() => {
-			// 		this.messages.push({
-			// 			id: Math.random().toString(36).substr(2, 9),
-			// 			time: new Date().toLocaleTimeString(),
-			// 			text: Math.random().toString(2),
-			// 			sender: "other"  // 标记为bot消息
-			// 		});
-			// 	this.isWaitingResponse = false;
-			// 	this.scrollToEnd("received")
-			// }, 1000);
 			this.scrollToEnd("sent")
 		},
 		scrollToEnd(type) {
@@ -106,7 +101,9 @@ export default {
 			});
 		},
 		emitMessage(message) {
-			this.$emit("transMsg", message)
+			if (message.sender !== this.currentUser) {
+				this.$emit("transMsg", message)
+			}
 		},
 		onPickFile() {
 			this.$refs.fileInput.value = ''
@@ -130,10 +127,12 @@ export default {
 					this.isWaitingUpload = false
 				})
 				.catch(err => {
-					window.alert(err.data)
 					this.isWaitingUpload = false
+					window.alert(err.response.data.detail)
+					if (err.response.status === 401) {
+						this.$router.push("/login")
+					}
 				})
-				// this.$emit("uploadedFiles", fileNames)
 			}
 		},
 	}

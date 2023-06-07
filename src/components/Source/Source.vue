@@ -9,8 +9,10 @@
           <h4>Uploaded Files</h4>
         </div>
         <ul class="file-container">
-          <label class="fn-ele" v-for="fn in uploadedFiles" :key="fn.id">
-            {{ fn.fileName }}
+          <label class="fn-ele" v-for="fn in uploadedFiles" :key="fn.fileName">
+            <div class="fn-text" :class="{active: isSrc(fn.fileName)}">
+              {{ fn.fileName }}
+            </div>
           </label>
         </ul>
       </div>
@@ -19,12 +21,12 @@
           <h4>References</h4>
         </div>
         <ul class="message-container">
-          <li v-for="src in sources" :key="src.id">
+          <li v-for="src in sources" :key="src.src">
             <div class="message">
-              <div class="message-text">
+              <div class="srcsrc">{{ src.src }}</div>
+              <div class="message-text" id="src-text">
                 {{ src.text }}
               </div>
-              <div class="message-src">{{ src.src }}</div>
             </div>
           </li>
         </ul>
@@ -48,11 +50,26 @@ export default {
   methods: {
     logClickedMsg(msg) {
       console.log(msg)
+    },
+    isSrc(fn) {
+      for (var i = 0; i < this.sources.length; i++) {
+        let src = this.sources[i]
+        if (fn === src.src) {
+          return true
+        }
+      }
+      return false
     }
   },
   watch: {
     clickedMsg() {
-      this.sources.push(this.clickedMsg)
+      let sources = []
+      let srcs = this.clickedMsg.src
+      for (var i = 0; i < src.length; i++) {
+        let src = srcs[i]
+        sources.push(src)
+      }
+      this.sources = sources
     },
   },
 }
@@ -105,7 +122,18 @@ export default {
   white-space: nowrap;
   font-size: smaller;
 }
+.fn-text.active {
+  color: #fdf6e3;
+  font-weight: bold;
+}
+.srcsrc {
+  padding-bottom: 5px;
+  font-size: small;
+}
 #messages-src::-webkit-scrollbar {
   display: none;
+}
+#src-text {
+  max-width: 80%;
 }
 </style>
